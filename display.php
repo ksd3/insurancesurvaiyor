@@ -7,14 +7,12 @@
 </head>
 <body>
 <div id="userData"></div>
-<button onclick="fetchAndDisplay()">Display Data</button>
 <script>
-function fetchAndDisplay() {
+document.addEventListener("DOMContentLoaded", function() {
     fetch('data.json')
     .then(response => response.json())
     .then(data => {
         const userDataDiv = document.getElementById('userData');
-        userDataDiv.innerHTML = ''; // Clear previous data
         data.forEach(item => {
             const img = document.createElement('img');
             img.src = item.image;
@@ -25,7 +23,7 @@ function fetchAndDisplay() {
         });
     })
     .catch(error => console.error('Error fetching data:', error));
-}
+});
 </script>
 </body>
 </html>
