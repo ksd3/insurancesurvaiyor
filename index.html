@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Upload Form</title>
+</head>
+<body>
+<form id="uploadForm" enctype="multipart/form-data">
+    <div id="uploadContainer"></div>
+    <button type="button" onclick="addFields()">Add Image</button>
+    <button type="button" onclick="deleteFields()">Delete Image</button>
+    <button type="button" onclick="submitForm()">Submit</button>
+</form>
+
+<script>
+let uploadContainer = document.getElementById('uploadContainer');
+let formData = [];
+
+function addFields() {
+    let inputDiv = document.createElement('div');
+    inputDiv.innerHTML = `
+        <input type="file" name="fileUpload[]" accept="image/*">
+        <input type="text" name="imageText[]" placeholder="Enter Image Text">
+    `;
+    uploadContainer.appendChild(inputDiv);
+}
+
+function deleteFields() {
+    if(uploadContainer.children.length > 1) {
+        uploadContainer.removeChild(uploadContainer.lastChild);
+        formData.pop();
+    }
+}
+
+function submitForm() {
+    let images = [];
+    let inputs = document.querySelectorAll('#uploadContainer input[type="file"]');
+    let texts = document.querySelectorAll('#uploadContainer input[type="text"]');
+    
+    inputs.forEach((input, index) => {
+        if (input.files.length > 0) {
+            let file = input.files[0];
+            let text = texts[index].value;
+            let imageURL = `images/${file.name}`; // Assuming you store images in 'images' directory
+            
+            formData.push({ "url": imageURL, "text": text });
+            images.push(file);
+        }
+    });
+ 
+    let jsonData = JSON.stringify(formData);
+
+    fetch('saveFormData.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: jsonData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        window.location.href = 'display.html'; // Redirect to display.html after successful submission
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+</body>
+</html>

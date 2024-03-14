@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Display Data</title>
+</head>
+<body>
+  <h1>Display Data</h1>
+  <div id="data"></div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const dataString = urlParams.get('data');
+    const jsonData = JSON.parse(decodeURIComponent(dataString));
+
+    const dataDiv = document.getElementById('data');
+    jsonData.forEach(item => {
+      const img = document.createElement('img');
+      img.src = item.imageURL;
+      img.style.width = "200px";
+      img.style.height = "auto";
+
+      const text = document.createElement('p');
+      text.textContent = item.text;
+
+      dataDiv.appendChild(img);
+      dataDiv.appendChild(text);
+    });
+  </script>
+</body>
+</html>
