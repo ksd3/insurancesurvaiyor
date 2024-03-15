@@ -126,6 +126,7 @@
         <input type="text" name="texts[]" placeholder="Client Name">
         <input type="text" name="texts[]" placeholder="Date of Visit (YYYY-MM-DD)">
         <input type="text" name="texts[]" placeholder="Client ID">
+        <input type="text" name="texts[]" placeholder="ZIP Code"> <!-- Added line -->
         <button type="button" onclick="addFields()">Add More</button>
     </div>
     <button type="button" onclick="removeFields()">Remove Last</button>
@@ -160,10 +161,11 @@
               $name = basename($_FILES["images"]["name"][$key]);
               $file_path = $uploads_dir . $name;
               move_uploaded_file($tmp_name, $file_path);
-              $client_name = $_POST["texts"][($key * 3)]; // Index adjusted for multiple fields per image
-              $date_of_visit = $_POST["texts"][($key * 3) + 1];
-              $client_id = $_POST["texts"][($key * 3) + 2];
-              $data[] = array("image" => $file_path, "client_name" => $client_name, "date_of_visit" => $date_of_visit, "client_id" => $client_id);
+              $client_name = $_POST["texts"][($key * 4)]; // Index adjusted for multiple fields per image
+              $date_of_visit = $_POST["texts"][($key * 4) + 1];
+              $client_id = $_POST["texts"][($key * 4) + 2];
+              $zip_code = $_POST["texts"][($key * 4) + 3]; // Added line
+              $data[] = array("image" => $file_path, "client_name" => $client_name, "date_of_visit" => $date_of_visit, "client_id" => $client_id, "zip_code" => $zip_code); // Modified line
           }
       }
 
@@ -187,7 +189,8 @@
     newInput.innerHTML = '<input type="file" name="images[]" accept="image/*">' +
                          '<input type="text" name="texts[]" placeholder="Client Name">' +
                          '<input type="text" name="texts[]" placeholder="Date of Visit (YYYY-MM-DD)">' +
-                         '<input type="text" name="texts[]" placeholder="Client ID">';
+                         '<input type="text" name="texts[]" placeholder="Client ID">' +
+                         '<input type="text" name="texts[]" placeholder="ZIP Code">'; // Modified line
     inputs.appendChild(newInput);
   }
 
