@@ -126,7 +126,7 @@
         <input type="text" name="texts[]" placeholder="Client Name">
         <input type="text" name="texts[]" placeholder="Date of Visit (YYYY-MM-DD)">
         <input type="text" name="texts[]" placeholder="Client ID">
-        <input type="text" name="texts[]" placeholder="ZIP Code"> <!-- Added line -->
+        <input type="text" name="texts[]" placeholder="ZIP Code">
         <button type="button" onclick="addFields()">Add More</button>
     </div>
     <button type="button" onclick="removeFields()">Remove Last</button>
@@ -137,15 +137,44 @@
 
   <?php
 
+  function runPythonScript($data) {
+      $pythonScriptPath = "path/to/python/script.py"; // Update with the actual path to your Python script
+
+      foreach ($data as $item) {
+          $imagePath = $item["image"];
+          $clientID = $item["client_id"];
+          $dateOfVisit = $item["date_of_visit"];
+          $clientName = $item["client_name"];
+          $zipCode = $item["zip_code"];
+
+          // Construct the command to run the Python script with parameters
+          $command = "python $pythonScriptPath \"$imagePath\" \"$clientID\" \"$dateOfVisit\" \"$clientName\" \"$zipCode\"";
+
+          // Execute the command
+          exec($command, $output, $return_var);
+
+          // Check if the command executed successfully
+          if ($return_var === 0) {
+              echo "Python script executed successfully for image: $imagePath<br>";
+          } else {
+              echo "Error executing Python script for image: $imagePath<br>";
+          }
+      }
+  }
+
   function displayImagesAndText($data) {
       foreach ($data as $item) {
           echo '<div class="image-container">';
           echo '<img src="' . $item["image"] . '" alt="Uploaded Image">';
-          echo '<p>' . htmlspecialchars($item["text"]) . '</p>'; // Output text securely
+          echo '<p>' . htmlspecialchars($item["client_name"]) . '</p>'; // Output client name securely
+          echo '<p>' . htmlspecialchars($item["date_of_visit"]) . '</p>'; // Output date of visit securely
+          echo '<p>' . htmlspecialchars($item["client_id"]) . '</p>'; // Output client ID securely
+          echo '<p>' . htmlspecialchars($item["zip_code"]) . '</p>'; // Output ZIP code securely
           echo '</div>';
       }
       echo '<button class="analytics-button" type="button" onclick="runPythonScript()">Run Analytics</button>';
   }
+
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $data = array();
       $uploads_dir = 'uploads' . DIRECTORY_SEPARATOR;
@@ -161,10 +190,10 @@
               $name = basename($_FILES["images"]["name"][$key]);
               $file_path = $uploads_dir . $name;
               move_uploaded_file($tmp_name, $file_path);
-              $client_name = $_POST["texts"][($key * 4)]; // Index adjusted for multiple fields per image
-              $date_of_visit = $_POST["texts"][($key * 4) + 1];
-              $client_id = $_POST["texts"][($key * 4) + 2];
-              $zip_code = $_POST["texts"][($key * 4) + 3]; // Added line
+              $client_name = $_POST["texts"][($key * 5)]; // Index adjusted for multiple fields per image
+              $date_of_visit = $_POST["texts"][($key * 5) + 1];
+              $client_id = $_POST["texts"][($key * 5) + 2];
+              $zip_code = $_POST["texts"][($key * 5) + 3]; // Added line
               $data[] = array("image" => $file_path, "client_name" => $client_name, "date_of_visit" => $date_of_visit, "client_id" => $client_id, "zip_code" => $zip_code); // Modified line
           }
       }
@@ -178,6 +207,9 @@
           echo '<h2>Uploaded Images and Text</h2>';
           displayImagesAndText($data);
       }
+
+      // Run Python script for each image
+      runPythonScript($data);
   }
   ?>
 </div>
@@ -199,13 +231,6 @@
     if (inputs.children.length > 1) {
       inputs.removeChild(inputs.lastChild);
     }
-  }
-
-  function runPythonScript() {
-    // Get the path to the Python script.
-    var pythonScriptPath = "path/to/python/script.py";
-    // Run the Python script.
-    subprocess.run(["python", pythonScriptPath]);
   }
 </script>
 
