@@ -169,7 +169,7 @@
           displayImagesAndText($data);
           
           // Run the Python script
-          runPythonScript($file_path, $client_name, $date_of_visit, $client_id);
+          runPythonScript();
       }
   }
 
@@ -185,11 +185,11 @@
       echo '<button class="analytics-button" type="button" onclick="runPythonScript()">Run Analytics</button>';
   }
 
-  function runPythonScript($imagePath, $clientName, $dateOfVisit, $clientId) {
+  function runPythonScript() {
       // Get the path to the Python script.
-      $pythonScriptPath = "push_to_database.py";
+      $pythonScriptPath = "path/to/script.py";
       // Run the Python script.
-      $command = "python3 $pythonScriptPath $imagePath $clientName $dateOfVisit $clientId";
+      $command = "python3 $pythonScriptPath";
       exec($command, $output, $returnVar);
 
       if ($returnVar == 0) {
@@ -218,7 +218,6 @@
       inputs.removeChild(inputs.lastChild);
     }
   }
-
 </script>
 
 </body>
