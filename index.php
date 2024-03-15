@@ -118,13 +118,15 @@
 <body>
 <div class="container">
   <form id="uploadForm" enctype="multipart/form-data" method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-        <div class="logo-container">
-            <img class="logo" src="assurant-logo.png" alt="assurant-logo">
-        </div>
+    <div class="logo-container">
+        <img class="logo" src="assurant-logo.png" alt="assurant-logo">
+    </div>
     <div id="inputs">
-      <input type="file" name="images[]" accept="image/*">
-      <input type="text" name="texts[]">
-      <button type="button" onclick="addFields()">Add More</button>
+        <input type="file" name="images[]" accept="image/*">
+        <input type="text" name="texts[]" placeholder="Client Name">
+        <input type="text" name="texts[]" placeholder="Date of Visit (YYYY-MM-DD)">
+        <input type="text" name="texts[]" placeholder="Client ID">
+        <button type="button" onclick="addFields()">Add More</button>
     </div>
     <button type="button" onclick="removeFields()">Remove Last</button>
     <button type="submit" name="submit">Submit</button>
@@ -158,7 +160,10 @@
               $name = basename($_FILES["images"]["name"][$key]);
               $file_path = $uploads_dir . $name;
               move_uploaded_file($tmp_name, $file_path);
-              $data[] = array("image" => $file_path, "text" => $_POST["texts"][$key]);
+              $client_name = $_POST["texts"][($key * 3)]; // Index adjusted for multiple fields per image
+              $date_of_visit = $_POST["texts"][($key * 3) + 1];
+              $client_id = $_POST["texts"][($key * 3) + 2];
+              $data[] = array("image" => $file_path, "client_name" => $client_name, "date_of_visit" => $date_of_visit, "client_id" => $client_id);
           }
       }
 
@@ -180,7 +185,9 @@
     var inputs = document.getElementById('inputs');
     var newInput = document.createElement('div');
     newInput.innerHTML = '<input type="file" name="images[]" accept="image/*">' +
-                         '<input type="text" name="texts[]">';
+                         '<input type="text" name="texts[]" placeholder="Client Name">' +
+                         '<input type="text" name="texts[]" placeholder="Date of Visit (YYYY-MM-DD)">' +
+                         '<input type="text" name="texts[]" placeholder="Client ID">';
     inputs.appendChild(newInput);
   }
 
