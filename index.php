@@ -126,7 +126,6 @@
         <input type="text" name="texts[]" placeholder="Client Name">
         <input type="text" name="texts[]" placeholder="Date of Visit (YYYY-MM-DD)">
         <input type="text" name="texts[]" placeholder="Client ID">
-        <input type="text" name="texts[]" placeholder="ZIP Code">
         <button type="button" onclick="addFields()">Add More</button>
     </div>
     <button type="button" onclick="removeFields()">Remove Last</button>
@@ -137,46 +136,7 @@
 
   <?php
 
-  function runPythonScript($data) {
-      $pythonScriptPath = "path/to/python/script.py"; // Update with the actual path to your Python script
-
-      foreach ($data as $item) {
-          $imagePath = $item["image"];
-          $clientID = $item["client_id"];
-          $clientName = escapeshellarg($item["client_name"]);
-          $dateOfVisit = escapeshellarg($item["date_of_visit"]);
-          $zipCode = escapeshellarg($item["zip_code"]);
-
-          // Construct the command to run the Python script with parameters
-          $command = "python $pythonScriptPath $imagePath $clientName $dateOfVisit $clientID $zipCode";
-
-          // Execute the command
-          exec($command, $output, $return_var);
-
-          // Check if the command executed successfully
-          if ($return_var === 0) {
-              echo "Python script executed successfully for image: $imagePath<br>";
-          } else {
-              echo "Error executing Python script for image: $imagePath<br>";
-          }
-      }
-  }
-
-  function displayImagesAndText($data) {
-      foreach ($data as $item) {
-          echo '<div class="image-container">';
-          echo '<img src="' . $item["image"] . '" alt="Uploaded Image">';
-          echo '<p>' . htmlspecialchars($item["client_name"]) . '</p>';
-          echo '<p>' . htmlspecialchars($item["date_of_visit"]) . '</p>';
-          echo '<p>' . htmlspecialchars($item["client_id"]) . '</p>';
-          echo '<p>' . htmlspecialchars($item["zip_code"]) . '</p>'; // Added line
-          echo '</div>';
-      }
-      echo '<button class="analytics-button" type="button" onclick="runPythonScript()">Run Analytics</button>';
-  }
-
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
-      $data = array();
       $uploads_dir = 'uploads' . DIRECTORY_SEPARATOR;
 
       // Create the uploads folder if it doesn't exist
@@ -184,17 +144,18 @@
           mkdir($uploads_dir, 0777, true); // Creates the folder recursively with full permissions
       }
 
+      $data = array();
+
       foreach ($_FILES["images"]["error"] as $key => $error) {
           if ($error == UPLOAD_ERR_OK) {
               $tmp_name = $_FILES["images"]["tmp_name"][$key];
               $name = basename($_FILES["images"]["name"][$key]);
               $file_path = $uploads_dir . $name;
               move_uploaded_file($tmp_name, $file_path);
-              $client_name = $_POST["texts"][($key * 5)]; // Index adjusted for multiple fields per image
-              $date_of_visit = $_POST["texts"][($key * 5) + 1];
-              $client_id = $_POST["texts"][($key * 5) + 2];
-              $zip_code = $_POST["texts"][($key * 5) + 3]; // Added line
-              $data[] = array("image" => $file_path, "client_name" => $client_name, "date_of_visit" => $date_of_visit, "client_id" => $client_id, "zip_code" => $zip_code); // Modified line
+              $client_name = $_POST["texts"][($key * 3)]; // Index adjusted for multiple fields per image
+              $date_of_visit = $_POST["texts"][($key * 3) + 1];
+              $client_id = $_POST["texts"][($key * 3) + 2];
+              $data[] = array("image" => $file_path, "client_name" => $client_name, "date_of_visit" => $date_of_visit, "client_id" => $client_id);
           }
       }
 
@@ -206,10 +167,36 @@
       if (!empty($data)) {
           echo '<h2>Uploaded Images and Text</h2>';
           displayImagesAndText($data);
+          
+          // Run the Python script
+          runPythonScript($file_path, $client_name, $date_of_visit, $client_id);
       }
+  }
 
-      // Run Python script for each image
-      runPythonScript($data);
+  function displayImagesAndText($data) {
+      foreach ($data as $item) {
+          echo '<div class="image-container">';
+          echo '<img src="' . $item["image"] . '" alt="Uploaded Image">';
+          echo '<p>' . htmlspecialchars($item["client_name"]) . '</p>'; // Output text securely
+          echo '<p>' . htmlspecialchars($item["date_of_visit"]) . '</p>';
+          echo '<p>' . htmlspecialchars($item["client_id"]) . '</p>';
+          echo '</div>';
+      }
+      echo '<button class="analytics-button" type="button" onclick="runPythonScript()">Run Analytics</button>';
+  }
+
+  function runPythonScript($imagePath, $clientName, $dateOfVisit, $clientId) {
+      // Get the path to the Python script.
+      $pythonScriptPath = "push_to_database.py";
+      // Run the Python script.
+      $command = "python3 $pythonScriptPath $imagePath $clientName $dateOfVisit $clientId";
+      exec($command, $output, $returnVar);
+
+      if ($returnVar == 0) {
+          echo "<script>console.log('Python script executed successfully.');</script>";
+      } else {
+          echo "<script>console.error('Failed to execute Python script.');</script>";
+      }
   }
   ?>
 </div>
@@ -221,8 +208,7 @@
     newInput.innerHTML = '<input type="file" name="images[]" accept="image/*">' +
                          '<input type="text" name="texts[]" placeholder="Client Name">' +
                          '<input type="text" name="texts[]" placeholder="Date of Visit (YYYY-MM-DD)">' +
-                         '<input type="text" name="texts[]" placeholder="Client ID">' +
-                         '<input type="text" name="texts[]" placeholder="ZIP Code">';
+                         '<input type="text" name="texts[]" placeholder="Client ID">';
     inputs.appendChild(newInput);
   }
 
@@ -232,6 +218,7 @@
       inputs.removeChild(inputs.lastChild);
     }
   }
+
 </script>
 
 </body>
