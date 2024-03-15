@@ -187,7 +187,7 @@
 
   function runPythonScript() {
       // Get the path to the Python script.
-      $pythonScriptPath = "path/to/script.py";
+      $pythonScriptPath = "push_to_database.py";
       // Run the Python script.
       $command = "python3 $pythonScriptPath";
       exec($command, $output, $returnVar);
