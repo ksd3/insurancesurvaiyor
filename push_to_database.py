@@ -1,8 +1,8 @@
 import os
-import sys
+import json
 import requests
 
-def upload_image_to_github(image_path, client_name, date_of_visit, client_id, github_token, repo_owner, repo_name, commit_message):
+def upload_to_github(image_path, client_name, date_of_visit, client_id, github_token, repo_owner, repo_name, commit_message):
     # Base URL for GitHub API
     base_url = "https://api.github.com"
 
@@ -41,15 +41,29 @@ def upload_image_to_github(image_path, client_name, date_of_visit, client_id, gi
             print(f"Failed to upload image. Status code: {response.status_code}")
             print(response.text)
 
-if __name__ == "__main__":
-    # Extract arguments passed from PHP
-    image_path = sys.argv[1]
-    client_name = sys.argv[2]
-    date_of_visit = sys.argv[3]
-    client_id = sys.argv[4]
-    github_token = sys.argv[5]
-    repo_owner = sys.argv[6]
-    repo_name = sys.argv[7]
-    commit_message = sys.argv[8]
+def push_data_to_github(data_file_path, images_directory, github_token, repo_owner, repo_name):
+    # Read data from JSON file
+    with open(data_file_path, "r") as json_file:
+        data = json.load(json_file)
 
-    upload_image_to_github(image_path, client_name, date_of_visit, client_id, github_token, repo_owner, repo_name, commit_message)
+    # Upload each image along with its data
+    for item in data:
+        image_path = os.path.join(images_directory, os.path.basename(item["image"]))
+        client_name = item["client_name"]
+        date_of_visit = item["date_of_visit"]
+        client_id = item["client_id"]
+        commit_message = f"Add image and data for {client_name}"
+        
+        # Upload image to GitHub
+        upload_to_github(image_path, client_name, date_of_visit, client_id, github_token, repo_owner, repo_name, commit_message)
+
+if __name__ == "__main__":
+    # Define paths and GitHub credentials
+    data_json_path = "path/to/data.json"
+    images_directory = "path/to/images/directory"
+    github_token = "YOUR_ACCESS_TOKEN"
+    repo_owner = "YOUR_GITHUB_USERNAME"
+    repo_name = "YOUR_REPOSITORY_NAME"
+
+    # Push data to GitHub
+    push_data_to_github(data_json_path, images_directory, github_token, repo_owner, repo_name)
