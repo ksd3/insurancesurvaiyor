@@ -13,7 +13,7 @@
     <button type="button" onclick="addFields()">Add More</button>
   </div>
   <button type="button" onclick="removeFields()">Remove Last</button>
-  <button type="submit" name="submit" onclick="redirectToDisplay()">Submit</button>
+  <button type="submit" name="submit">Submit</button>
 </form>
 
 <div id="message"></div>
@@ -33,10 +33,6 @@ function removeFields() {
     inputs.removeChild(inputs.lastChild);
   }
 }
-
-  function redirectToDisplay() {
-    window.location.href = 'display.php';
-  }
 </script>
 
   <?php
