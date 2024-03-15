@@ -143,12 +143,12 @@
       foreach ($data as $item) {
           $imagePath = $item["image"];
           $clientID = $item["client_id"];
-          $dateOfVisit = $item["date_of_visit"];
-          $clientName = $item["client_name"];
-          $zipCode = $item["zip_code"];
+          $clientName = escapeshellarg($item["client_name"]);
+          $dateOfVisit = escapeshellarg($item["date_of_visit"]);
+          $zipCode = escapeshellarg($item["zip_code"]);
 
           // Construct the command to run the Python script with parameters
-          $command = "python $pythonScriptPath \"$imagePath\" \"$clientID\" \"$dateOfVisit\" \"$clientName\" \"$zipCode\"";
+          $command = "python $pythonScriptPath $imagePath $clientName $dateOfVisit $clientID $zipCode";
 
           // Execute the command
           exec($command, $output, $return_var);
@@ -166,10 +166,10 @@
       foreach ($data as $item) {
           echo '<div class="image-container">';
           echo '<img src="' . $item["image"] . '" alt="Uploaded Image">';
-          echo '<p>' . htmlspecialchars($item["client_name"]) . '</p>'; // Output client name securely
-          echo '<p>' . htmlspecialchars($item["date_of_visit"]) . '</p>'; // Output date of visit securely
-          echo '<p>' . htmlspecialchars($item["client_id"]) . '</p>'; // Output client ID securely
-          echo '<p>' . htmlspecialchars($item["zip_code"]) . '</p>'; // Output ZIP code securely
+          echo '<p>' . htmlspecialchars($item["client_name"]) . '</p>';
+          echo '<p>' . htmlspecialchars($item["date_of_visit"]) . '</p>';
+          echo '<p>' . htmlspecialchars($item["client_id"]) . '</p>';
+          echo '<p>' . htmlspecialchars($item["zip_code"]) . '</p>'; // Added line
           echo '</div>';
       }
       echo '<button class="analytics-button" type="button" onclick="runPythonScript()">Run Analytics</button>';
@@ -222,7 +222,7 @@
                          '<input type="text" name="texts[]" placeholder="Client Name">' +
                          '<input type="text" name="texts[]" placeholder="Date of Visit (YYYY-MM-DD)">' +
                          '<input type="text" name="texts[]" placeholder="Client ID">' +
-                         '<input type="text" name="texts[]" placeholder="ZIP Code">'; // Modified line
+                         '<input type="text" name="texts[]" placeholder="ZIP Code">';
     inputs.appendChild(newInput);
   }
 
